@@ -23,7 +23,7 @@ const updateUser = async (req, res, next) => {
                     message: 'Password must be atleast 6 characters',
                 })
             }
-            req.body.password = bcryptjs.hashSync(req.body.password, 10);
+            req.body.password = await bcryptjs.hash(req.body.password, 10);
             updates.password = req.body.password
         }
         if (req.body.username) {
