@@ -18,8 +18,9 @@ export default function DashProfile() {
   const [imageFileUploadProgress, setImageFileUploadProgress] = useState(null);
   const [imageFileUploadError, setImageFileUploadError] = useState(null);
   const [imageFileUploading, setImageFileUploading] = useState(false);
+
   const [updateUserSuccess, setUpdateUserSuccess] = useState(null);
-  const [updateUserError, setUpdateUserError] = useState(null);
+  // const [updateUserError, setUpdateUserError] = useState(null);
   
   const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState({});
@@ -90,7 +91,7 @@ export default function DashProfile() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setUpdateUserError(null);
+    // setUpdateUserError(null);
     setUpdateUserSuccess(null);
     if (Object.keys(formData).length === 0) {
       dispatch(updateFailure("No changes made"));
@@ -110,7 +111,7 @@ export default function DashProfile() {
         },
       );
       const data = res.data;
-      if (!res) {
+      if (res.status != 200) {
         dispatch(updateFailure(data.message));
       } else {
         dispatch(updateSuccess(data));
@@ -125,8 +126,9 @@ export default function DashProfile() {
     try {
       dispatch(deleteUserStart());
       const res = await axios.delete(`/api/user/delete/${currentUser._id}`);
+
       const data = res.data;
-      if (!res) {
+      if (res.status != 200) {
         dispatch(deleteUserFailure(data.message));
       } else {
         dispatch(deleteUserSuccess(data));
@@ -140,7 +142,7 @@ export default function DashProfile() {
     try {
       const res = await axios.post("/api/user/signout");
       const data = res.data;
-      if (!res) {
+      if (res.status != 200) {
         console.log(data.message);
       } else {
         dispatch(signoutSuccess());
@@ -252,11 +254,7 @@ export default function DashProfile() {
           {updateUserSuccess}
         </Alert>
       )}
-      {updateUserError && (
-        <Alert color="failure" className="mt-5">
-          {updateUserError}
-        </Alert>
-      )}
+      {/*   */}
       {error && (
         <Alert color="failure" className="mt-5">
           {error}

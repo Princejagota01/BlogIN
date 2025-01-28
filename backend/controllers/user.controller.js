@@ -69,7 +69,7 @@ const updateUser = async (req, res, next) => {
     }
 }
 
-const deleteUser = async (req, res) => {
+const  deleteUser = async (req, res) => {
     try {
         if (!req.user.isAdmin && req.user.id !== req.params.userId) {
             return res.status(400).json({

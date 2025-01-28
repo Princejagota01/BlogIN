@@ -29,7 +29,7 @@ const Header = () => {
         try {
             const res = await axios.post("/api/user/signout");
             const data = res.data;
-            if (!res.success) console.log(data.message);
+            if (res.status != 200) console.log(data.message);
             else {
                 dispatch(signoutSuccess());
             }

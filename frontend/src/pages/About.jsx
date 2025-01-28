@@ -8,9 +8,9 @@ export default function About() {
           </h1>
           <div className='text-md text-gray-500 flex flex-col gap-6'>
             <p>
-              Welcome to BlogIN! This blog was created by Khushaal Sareen
+              Welcome to BlogIN! This blog was created by Prince Jagota
               as a personal project to share his thoughts and ideas with the
-              world. Khushaal is a passionate developer who loves to write about
+              world. Prince is a passionate developer who loves to write about
               technology, coding, and everything in between.
             </p>
 

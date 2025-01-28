@@ -26,7 +26,7 @@ const DashSidebar = () => {
     try{
       const res = await axios.post('/api/user/signout')
       const data = await res.data;
-      if(!res)
+      if(res.status != 200)
         console.log(data.message)
       else{
         dispatch(signoutSuccess())

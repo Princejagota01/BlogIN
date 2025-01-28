@@ -38,10 +38,10 @@ const Signin = () => {
        })
        const data = res.data
       //  console.log(data)
-       if(data.success == false)
+       if(res.status != 200)
         dispatch(signInFailure(data.message))
       
-        if(res.status==200){
+        else{
         dispatch(signInSuccess(data));
         navigate('/')
         }
