@@ -38,5 +38,7 @@ A feature-rich **blogging platform** that allows users to **create, edit, and ma
 
 1️⃣ **Clone the repository**  
 ```sh
+mkdir Blog-Application
+cd Blog-Application
 git clone https://github.com/Princejagota01/BlogIN.git
-cd blogging-app
+
