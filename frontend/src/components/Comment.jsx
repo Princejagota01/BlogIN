@@ -3,7 +3,8 @@ import { useEffect, useState } from 'react';
 import { FaThumbsUp } from 'react-icons/fa';
 import { useSelector } from 'react-redux';
 import { Button, Textarea } from 'flowbite-react';
-import { set } from 'mongoose';
+import axios from 'axios';
+// import { set } from 'mongoose';
 
 export default function Comment({ comment, onLike, onEdit, onDelete }) {
   const [user, setUser] = useState({});
@@ -13,9 +14,9 @@ export default function Comment({ comment, onLike, onEdit, onDelete }) {
   useEffect(() => {
     const getUser = async () => {
       try {
-        const res = await fetch(`/api/user/${comment.userId}`);
-        const data = await res.json();
-        if (res.ok) {
+        const res = await axios.get(`/api/user/${comment.userId}`);
+        const data = res.data;
+        if (res.status==200) {
           setUser(data);
         }
       } catch (error) {
@@ -32,16 +33,14 @@ export default function Comment({ comment, onLike, onEdit, onDelete }) {
 
   const handleSave = async () => {
     try {
-      const res = await fetch(`/api/comment/editComment/${comment._id}`, {
-        method: 'PUT',
-        headers: {
+      const res = await axios.put(`/api/comment/editComment/${comment._id}`, 
+        {content: editedContent}
+        ,
+        {headers: {
           'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          content: editedContent,
-        }),
-      });
-      if (res.ok) {
+        }},
+        );
+      if (res.status==200) {
         setIsEditing(false);
         onEdit(comment, editedContent);
       }
@@ -116,7 +115,7 @@ export default function Comment({ comment, onLike, onEdit, onDelete }) {
                     (comment.numberOfLikes === 1 ? 'like' : 'likes')}
               </p>
               {currentUser &&
-                (currentUser._id === comment.userId || currentUser.isAdmin) && (
+                (currentUser._id === comment.userId ) && (
                   <>
                     <button
                       type='button'

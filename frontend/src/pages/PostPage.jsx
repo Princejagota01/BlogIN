@@ -4,6 +4,7 @@ import { Link, useParams } from 'react-router-dom';
 import CallToAction from '../components/CallToAction';
 import CommentSection from '../components/CommentSection';
 import PostCard from '../components/PostCard';
+import axios from 'axios';
 
 const PostPage = () => {
     const {postSlug} = useParams()
@@ -16,18 +17,17 @@ const PostPage = () => {
         const fetchPost = async()=>{
             try{
                 setLoading(true)
-                const res = await fetch(`/api/post/getposts?slug=${postSlug}`)
-                const data = await res.json();
-                if(!res.ok){
+                const res = await axios.get(`/api/post/getposts?slug=${postSlug}`)
+                const data = res.data;
+                if(res.status!=200){
                     setError(true)
                     setLoading(false)
                     return;
                 }
-                if(res.ok){
-                    setPost(data.posts[0]);
-                    setError(false)
-                    setLoading(false)
-                }
+                setPost(data.posts[0]);
+                setError(false)
+                setLoading(false)
+
             } catch(error){
                 setError(true)
                 setLoading(false)
@@ -39,9 +39,9 @@ const PostPage = () => {
     useEffect(()=>{
       try{
         const fetchRecentPosts = async()=>{
-        const res = await fetch(`/api/post/getposts?limit=3`)
-        const data = await res.json();
-        if(res.ok){
+        const res = await axios.get(`/api/post/getposts?limit=3`)
+        const data = res.data;
+        if(res.status==200){
           setRecentPosts(data.posts)
         }
       }
@@ -57,9 +57,6 @@ const PostPage = () => {
             <Spinner size='xl' />
         </div>
         )
-    
-        
-
   return (
     <main className='p-3 flex flex-col max-w-6xl mx-auto min-h-screen'>
       <h1 className='text-3xl mt-10 p-3 text-center font-serif max-w-2xl mx-auto lg:text-4xl'>

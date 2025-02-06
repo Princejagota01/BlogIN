@@ -13,11 +13,12 @@ import { CircularProgressbar } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
 import { useNavigate, useParams } from 'react-router-dom';
 import {useSelector} from 'react-redux'
+import axios from 'axios';
 
 export default function UpdatePost() {
-  const [file, setFile] = useState(null);
-  const [imageUploadProgress, setImageUploadProgress] = useState(null);
-  const [imageUploadError, setImageUploadError] = useState(null);
+  // const [file, setFile] = useState(null);
+  // const [imageUploadProgress, setImageUploadProgress] = useState(null);
+  // const [imageUploadError, setImageUploadError] = useState(null);
   const [formData, setFormData] = useState({});
   const [publishError, setPublishError] = useState(null);
   const navigate = useNavigate();
@@ -27,18 +28,16 @@ export default function UpdatePost() {
   useEffect(()=>{
     try{
         const fetchPost = async()=>{
-            const res = await fetch(`/api/post/getposts?postId=${postId}`)
-            const data = await res.json();
-            console.log(data)
-            if(!res.ok){
+            const res = await axios.get(`/api/post/getposts?postId=${postId}`)
+            const data = res.data;
+            // console.log(data)
+            if(res.status!=200){
                 console.log(error.message)
                 setPublishError(data.message)
                 return;
             }
-            if(res.ok){
-                setPublishError(null)
-                setFormData(data.posts[0]);
-            }
+            setPublishError(null)
+            setFormData(data.posts[0]);
         }
         fetchPost()
     } catch(error){
@@ -46,62 +45,60 @@ export default function UpdatePost() {
     }
   },[postId])
 
-  const handleUpdloadImage = async () => {
-    try {
-      if (!file) {
-        setImageUploadError('Please select an image');
-        return;
-      }
-      setImageUploadError(null);
-      const storage = getStorage(app);
-      const fileName = new Date().getTime() + '-' + file.name;
-      const storageRef = ref(storage, fileName);
-      const uploadTask = uploadBytesResumable(storageRef, file);
-      uploadTask.on(
-        'state_changed',
-        (snapshot) => {
-          const progress =
-            (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-          setImageUploadProgress(progress.toFixed(0));
-        },
-        (error) => {
-          setImageUploadError('Image upload failed');
-          setImageUploadProgress(null);
-        },
-        () => {
-          getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-            setImageUploadProgress(null);
-            setImageUploadError(null);
-            setFormData({ ...formData, image: downloadURL });
-          });
-        }
-      );
-    } catch (error) {
-      setImageUploadError('Image upload failed');
-      setImageUploadProgress(null);
-      console.log(error);
-    }
-  };
+  // const handleUpdloadImage = async () => {
+  //   try {
+  //     if (!file) {
+  //       setImageUploadError('Please select an image');
+  //       return;
+  //     }
+  //     setImageUploadError(null);
+  //     const storage = getStorage(app);
+  //     const fileName = new Date().getTime() + '-' + file.name;
+  //     const storageRef = ref(storage, fileName);
+  //     const uploadTask = uploadBytesResumable(storageRef, file);
+  //     uploadTask.on(
+  //       'state_changed',
+  //       (snapshot) => {
+  //         const progress =
+  //           (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+  //         setImageUploadProgress(progress.toFixed(0));
+  //       },
+  //       (error) => {
+  //         setImageUploadError('Image upload failed');
+  //         setImageUploadProgress(null);
+  //       },
+  //       () => {
+  //         getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+  //           setImageUploadProgress(null);
+  //           setImageUploadError(null);
+  //           setFormData({ ...formData, image: downloadURL });
+  //         });
+  //       }
+  //     );
+  //   } catch (error) {
+  //     setImageUploadError('Image upload failed');
+  //     setImageUploadProgress(null);
+  //     console.log(error);
+  //   }
+  // };
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await fetch(`/api/post/updatepost/${formData._id}/${currentUser._id}`, {
-        method: 'PUT',
-        headers: {
+      const res = await axios.put(`/api/post/updatepost/${formData._id}/${currentUser._id}`, 
+        formData
+      ,
+        {headers: {
           'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
-      const data = await res.json();
-      if (!res.ok) {
+        }}
+      );
+      const data = res.data;
+      if (res.status!=200) {
         setPublishError(data.message);
         return;
       }
       console.log(data)
-      if (res.ok) {
-        setPublishError(null);
-        navigate(`/post/${data.slug}`);
-      }
+      setPublishError(null);
+      navigate(`/post/${data.slug}`);
     } catch (error) {
       setPublishError('Something went wrong');
     }
@@ -134,7 +131,7 @@ export default function UpdatePost() {
             <option value='nextjs'>Next.js</option>
           </Select>
         </div>
-        <div className='flex gap-4 items-center justify-between border-4 border-teal-500 border-dotted p-3'>
+        {/* <div className='flex gap-4 items-center justify-between border-4 border-teal-500 border-dotted p-3'>
           <FileInput
             type='file'
             accept='image/*'
@@ -167,7 +164,7 @@ export default function UpdatePost() {
             alt='upload'
             className='w-full h-72 object-cover'
           />
-        )}
+        )} */}
         <ReactQuill
           theme='snow'
           value={formData?.content}

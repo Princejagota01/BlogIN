@@ -6,6 +6,7 @@ const router = express.Router();
 
 router.post('/create',verifyToken,create)
 router.get('/getposts',getposts);
+// router.get('/getposts/:userId',getpostsbyID);
 router.delete('/deletepost/:postId/:userId',verifyToken,deletePost)
 router.put('/updatepost/:postId/:userId',verifyToken,updatePost)
 

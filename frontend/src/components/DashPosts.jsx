@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { HiOutlineExclamationCircle } from 'react-icons/hi';
+import axios from 'axios';
 
 const DashPosts = () => {
   const {currentUser} = useSelector(store=>store.user)
@@ -15,9 +16,9 @@ const DashPosts = () => {
   useEffect(()=>{
     const fetchPosts = async ()=>{
       try{
-        const res = await fetch(`/api/post/getposts?userId=${currentUser._id}`)
-        const data = await res.json();
-        if(res.ok){
+        const res = await axios.get(`/api/post/getposts?userId=${currentUser._id}`)
+        const data = res.data;
+        if(res.status==200){
           setUserPosts(data.posts)
           if(data.posts.length<9){
             setShowMore(false);
@@ -27,19 +28,19 @@ const DashPosts = () => {
         console.log(error.message)
       }
     }
-    if(currentUser.isAdmin){
+    // if(currentUser.isAdmin){
       fetchPosts()
-    }
+    // }
   },[currentUser._id])
 
   const handleShowMore = async()=>{
     try{
       const startIdx  = userPosts.length
       console.log(startIdx)
-      const res = await fetch(`/api/post/getposts?userId=${currentUser._id}&startIndex=${startIdx}`)
-      const data = await res.json();
+      const res = await axios.get(`/api/post/getposts?userId=${currentUser._id}&startIndex=${startIdx}`)
+      const data = res.data;
       console.log(data)
-      if(res.ok){
+      if(res.status==200){
         setUserPosts([...userPosts,...data.posts])
         if(data.posts.length <9)
           setShowMore(false)
@@ -52,14 +53,10 @@ const DashPosts = () => {
   const handleDeletePost = async()=>{
     setShowModal(false);
     try {
-      const res = await fetch(
-        `/api/post/deletepost/${postIdToDelete}/${currentUser._id}`,
-        {
-          method: 'DELETE',
-        }
-      );
-      const data = await res.json();
-      if (!res.ok) {
+      const res = await axios.delete(
+        `/api/post/deletepost/${postIdToDelete}/${currentUser._id}`);
+      const data = res.data;
+      if (res.status!=200) {
         console.log(data.message);
       } else {
         setUserPosts((prev) =>
@@ -73,7 +70,7 @@ const DashPosts = () => {
 
   return (
     <div className='table-auto overflow-x-scroll md:mx-auto p-3 scrollbar scrollbar-track-slate-100 scrollbar-thumb-slate-300 dark:scrollbar-track-slate-700 dark:scrollbar-thumb-slate-500'>
-      {currentUser.isAdmin && userPosts.length > 0 ? (
+      {userPosts.length > 0 ? (
         <>
           <Table hoverable className='shadow-md'>
             <Table.Head>

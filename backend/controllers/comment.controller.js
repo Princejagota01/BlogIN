@@ -78,7 +78,7 @@ const editComment = async(req,res)=>{
                 message: 'Comment not found'
             })
         }
-        if(comment.userId !== req.user.id && !req.user.isAdmin){
+        if(comment.userId !== req.user.id  ){
             return res.status(400).json({
                 success: false,
                 message: 'You are not allowed to edit this comment'
@@ -106,7 +106,7 @@ const deleteComment = async (req, res) => {
             message: 'No such comment exists'
         })
       }
-      if (comment.userId !== req.user.id && !req.user.isAdmin) {
+      if (comment.userId !== req.user.id ) {
         return res.status(400).json({
           success: false,
           message: 'You are not allowed to delete this comment'
@@ -123,7 +123,7 @@ const deleteComment = async (req, res) => {
   };
 
 const getComments = async(req,res)=>{
-    if(!req.user.isAdmin){
+    if(!req.user){
         return res.status(400).json({
             success: false,
             message: 'You are not allowed to get all comments'
@@ -147,5 +147,30 @@ const getComments = async(req,res)=>{
         })
     }
 }
+const getCommentsByID = async(req,res)=>{
+    if(!req.user){
+        return res.status(400).json({
+            success: false,
+            message: 'You are not allowed to get all comments'
+        })   
+    }
+    try{
+        const startIndex = parseInt(req.query.startIndex) || 0;
+        // const limit = parseInt(req.query.limit) || 9;
+        const sortDirection = req.query.sort === 'desc' ? -1: 1;
+        const comments = await Comment.find({userId:req.user.id}).sort({createdAt: sortDirection}).skip(startIndex);
+        const totalComments = comments.length;
+        const now  = new Date();
+        const oneMonthAgo = new Date(now.getFullYear(), now.getMonth()-1, now.getDate());
+        const lastMonthComments = await Comment.countDocuments({createdAt: {$gte: oneMonthAgo}})
+        res.status(200).json({comments, totalComments, lastMonthComments});
+        
+    } catch(error){
+        return res.status(500).json({
+            success: false,
+            message: error.message
+        })
+    }
+}
 
-module.exports = {createComment,getPostComments,likeComment,editComment,deleteComment,getComments}
+module.exports = {createComment,getPostComments,likeComment,editComment,deleteComment,getComments,getCommentsByID}

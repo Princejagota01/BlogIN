@@ -1,13 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import {
-  HiAnnotation,
-  HiArrowNarrowUp,
-  HiDocumentText,
-  HiOutlineUserGroup,
-} from 'react-icons/hi';
+import {HiAnnotation,HiArrowNarrowUp,HiDocumentText,HiOutlineUserGroup,} from 'react-icons/hi';
 import { Button, Table } from 'flowbite-react';
 import { Link } from 'react-router-dom';
+import axios from 'axios';
 
 export default function DashboardComp() {
   const [users, setUsers] = useState([]);
@@ -19,7 +15,9 @@ export default function DashboardComp() {
   const [lastMonthUsers, setLastMonthUsers] = useState(0);
   const [lastMonthPosts, setLastMonthPosts] = useState(0);
   const [lastMonthComments, setLastMonthComments] = useState(0);
+
   const { currentUser } = useSelector((state) => state.user);
+
   useEffect(() => {
     const fetchUsers = async () => {
       try {
@@ -36,12 +34,17 @@ export default function DashboardComp() {
     };
     const fetchPosts = async () => {
       try {
-        const res = await fetch('/api/post/getposts?limit=5');
-        const data = await res.json();
-        if (res.ok) {
-          setPosts(data.posts);
-          setTotalPosts(data.totalPosts);
-          setLastMonthPosts(data.lastMonthPosts);
+        const res = await axios.get('/api/post/getposts?limit=10');
+        const data = res.data;
+        
+        if (res.status==200) {
+          const postData = data.posts;
+          // console.log(postData);
+          const filterPosts = postData.filter((e)=> e.userId === currentUser._id);
+          // console.log(filterPosts);
+          setPosts(filterPosts);
+          setTotalPosts(filterPosts.length);
+          setLastMonthPosts(filterPosts.length);
         }
       } catch (error) {
         console.log(error.message);
@@ -49,23 +52,27 @@ export default function DashboardComp() {
     };
     const fetchComments = async () => {
       try {
-        const res = await fetch('/api/comment/getcomments?limit=5');
-        const data = await res.json();
-        if (res.ok) {
+        const res = await axios.get('/api/comment/getcommentsByID');
+        const data = res.data;
+        if (res.status==200) {
+          // const commnetsData = data.comments;
+          // console.log(postData);
+          // const filterCommnets = commnetsData.filter((e)=> e.userId === currentUser._id);
           setComments(data.comments);
           setTotalComments(data.totalComments);
-          setLastMonthComments(data.lastMonthComments);
+          setLastMonthComments(data.totalComments);
         }
       } catch (error) {
         console.log(error.message);
       }
     };
-    if (currentUser.isAdmin) {
+    // if (currentUser.isAdmin) {
       fetchUsers();
       fetchPosts();
       fetchComments();
-    }
+    // }
   }, [currentUser]);
+
   return (
     <div className='p-3 md:mx-auto'>
       <div className='flex-wrap flex gap-4 justify-center'>
@@ -121,7 +128,7 @@ export default function DashboardComp() {
         </div>
       </div>
       <div className='flex flex-wrap gap-4 py-3 mx-auto justify-center'>
-        <div className='flex flex-col w-full md:w-auto shadow-md p-2 rounded-md dark:bg-gray-800'>
+        {/* <div className='flex flex-col w-full md:w-auto shadow-md p-2 rounded-md dark:bg-gray-800'>
           <div className='flex justify-between  p-3 text-sm font-semibold'>
             <h1 className='text-center p-2'>Recent users</h1>
             <Button outline gradientDuoTone='purpleToPink'>
@@ -149,7 +156,7 @@ export default function DashboardComp() {
                 </Table.Body>
               ))}
           </Table>
-        </div>
+        </div> */}
         <div className='flex flex-col w-full md:w-auto shadow-md p-2 rounded-md dark:bg-gray-800'>
           <div className='flex justify-between  p-3 text-sm font-semibold'>
             <h1 className='text-center p-2'>Recent comments</h1>

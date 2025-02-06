@@ -4,6 +4,7 @@ import { useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 import Comment from './Comment';
 import { HiOutlineExclamationCircle } from 'react-icons/hi';
+import axios from 'axios';
 
 export default function CommentSection({ postId }) {
   const { currentUser } = useSelector((state) => state.user);
@@ -20,19 +21,18 @@ export default function CommentSection({ postId }) {
       return;
     }
     try {
-      const res = await fetch('/api/comment/create', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
+      const res = await axios.post('/api/comment/create', 
+        {
           content: comment,
           postId,
           userId: currentUser._id,
-        }),
-      });
-      const data = await res.json();
-      if (res.ok) {
+        },
+        {headers: {
+          'Content-Type': 'application/json',
+        }}
+      );
+      const data = res.data;
+      if (res.status==200) {
         setComment('');
         setCommentError(null);
         setComments([data, ...comments]);
@@ -45,9 +45,9 @@ export default function CommentSection({ postId }) {
   useEffect(() => {
     const getComments = async () => {
       try {
-        const res = await fetch(`/api/comment/getPostComments/${postId}`);
-        if (res.ok) {
-          const data = await res.json();
+        const res = await axios.get(`/api/comment/getPostComments/${postId}`);
+        if (res.status==200) {
+          const data = res.data;
           setComments(data);
         }
       } catch (error) {
@@ -58,17 +58,16 @@ export default function CommentSection({ postId }) {
   }, [postId]);
 
   console.log(comment)
+  
   const handleLike = async (commentId) => {
     try {
       if (!currentUser) {
         navigate('/sign-in');
         return;
       }
-      const res = await fetch(`/api/comment/likeComment/${commentId}`, {
-        method: 'PUT',
-      });
-      if (res.ok) {
-        const data = await res.json();
+      const res = await axios.put(`/api/comment/likeComment/${commentId}`);
+      if (res.status==200) {
+        const data = res.data;
         setComments(
           comments.map((comment) =>
             comment._id === commentId
@@ -101,11 +100,9 @@ export default function CommentSection({ postId }) {
         navigate('/sign-in');
         return;
       }
-      const res = await fetch(`/api/comment/deleteComment/${commentId}`, {
-        method: 'DELETE',
-      });
-      if (res.ok) {
-        const data = await res.json();
+      const res = await axios.delete(`/api/comment/deleteComment/${commentId}`);
+      if (res.status==200) {
+        const data = res.data;
         setComments(comments.filter((comment) => comment._id !== commentId));
       }
     } catch (error) {
